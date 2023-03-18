@@ -1,0 +1,12 @@
+{
+    "name": "tjallingf/magister-php",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Tjall\\Magister\\": "src/"
+        }
+    },
+    "require": {
+        "guzzlehttp/guzzle": "^7.5"
+    }
+}
