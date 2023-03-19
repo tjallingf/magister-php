@@ -16,7 +16,7 @@
         
         public static function fromOpenidCode(string $openid_code, string $code_verifier): static { 
             $res = HttpClient::static()->post('connect/token', [
-                'base_uri' => Lib::MAGISTER_ACCOUNTS_URI,
+                'base_uri' => Lib::HOST_MAGISTER_ACCOUNTS,
                 'headers' => [
                     'x-api-client-id' => self::HEADER_X_API_CLIENT_ID
                 ],
@@ -60,7 +60,7 @@
         
         public function refresh(): void {
             $res = HttpClient::static()->post('connect/token', [
-                'base_uri' => Lib::MAGISTER_ACCOUNTS_URI,
+                'base_uri' => Lib::HOST_MAGISTER_ACCOUNTS,
                 'headers' => [
                     'x-api-client-id' => self::HEADER_X_API_CLIENT_ID
                 ],

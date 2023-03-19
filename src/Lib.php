@@ -1,16 +1,19 @@
 <?php
     namespace Tjall\Magister;
+    
+    phpinfo();
 
     use Psr\Http\Message\ResponseInterface;
 
     class Lib {
-        const MAGISTER_ACCOUNTS_URI = 'https://accounts.magister.net';
+        const HOST_MAGISTER = 'https://magister.net/';
+        const HOST_MAGISTER_ACCOUNTS = 'https://accounts.magister.net';
 
-        public static function generateRandomHex(int $length = 32): string {
+        public static function randomHex(int $length = 32): string {
             return bin2hex(openssl_random_pseudo_bytes($length / 2));
         }
 
-        public static function generateRandomString(int $length = 32, string $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'): string {
+        public static function randomString(int $length = 32, string $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'): string {
             return substr(str_shuffle(str_repeat($chars, $length)), 0, $length);
         }
 
@@ -18,7 +21,7 @@
             return str_replace(['=', '+', '/'], ['', '-', '_'], base64_encode($input));
         }
 
-        public static function base64UrlDecoded(string $input): string {
+        public static function base64UrlDecode(string $input): string {
             return base64_decode(str_replace(['-', '_'], ['+', '/'], $input));
         }
 
@@ -29,10 +32,6 @@
 
         public static function arrayGetWhere(array $array, string $sibling_key, $sibling_value, ?string $return_key = null) {
             return array_column($array, $return_key, $sibling_key)[$sibling_value];
-        }
-
-        public static function triggerNotImplemented(string $class, string $method) {
-            throw new \Exception("Method '$class::$method' is not implemented.");
         }
 
         public static function arrayGet(array $arr, string $path) {

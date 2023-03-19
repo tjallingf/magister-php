@@ -3,11 +3,12 @@
 
     use Tjall\Magister\Helpers\HttpClient;
     use Tjall\Magister\Lib;
-    use Tjall\Magister\Token;
     use Tjall\Magister\Bearer;
     use GuzzleHttp\Exception\RequestException;
     use GuzzleHttp\RedirectMiddleware;
-    use Psr\Http\Message\ResponseInterface;
+    use Tjall\Magister\Exceptions\InvalidChallengeValueException;
+    use Tjall\Magister\ApiException;
+    use InvalidArgumentException;
     use Exception;
 
     class LoginSession {
@@ -22,7 +23,7 @@
 
         public function __construct() {
             $this->httpClient = new HttpClient([
-                'base_uri' => Lib::MAGISTER_ACCOUNTS_URI,
+                'base_uri' => Lib::HOST_MAGISTER_ACCOUNTS,
                 'auth' => 'xsrf'
             ]);
             $this->codeVerifier  = $this->generateCodeVerifier();
@@ -41,13 +42,13 @@
                 $redirect_callback_url = $res->getHeaderLine('Location');
 
                 if(!isset($redirect_callback_url))
-                    throw new Exception('Failed to get redirect callback url.');
+                    throw new ApiException('Failed to get redirect callback url.');
 
                 parse_str(parse_url($redirect_callback_url, PHP_URL_FRAGMENT), $url_fragment);
                 $openid_code = @$url_fragment['code'];
 
                 if(!is_string($openid_code))
-                    throw new Exception('Failed to get open id code.');
+                    throw new ApiException('Failed to get open id code.');
 
                 $bearer = Bearer::fromOpenidCode($openid_code, $this->codeVerifier);
                 
@@ -59,7 +60,7 @@
 
         public function performChallenge(string $challenge, string $challenge_value): bool {
             if($challenge != 'tenant' && $challenge != 'username' && $challenge != 'password')
-                throw new Exception("Invalid challenge: '$challenge'.");
+                throw new InvalidArgumentException("Invalid challenge: '$challenge'.");
 
             try {
                 $this->httpClient->post('challenges/'.$challenge, [
@@ -74,10 +75,10 @@
                 return true;
             } catch(RequestException $e) {
                 if(!$e->hasResponse()) 
-                    throw new Exception("Failed to perform challenge '$challenge'.");
+                    throw new ApiException("Failed to perform challenge '$challenge'.");
                 
                 if($e->getResponse()->getStatusCode() == '400')
-                    return false;
+                    return throw new InvalidChallengeValueException("Invalid value for challenge '$challenge'.");
 
                 throw $e;
             }
@@ -93,7 +94,7 @@
 
             $login_url = @$history[1];
 
-            if(!str_starts_with($login_url, Lib::MAGISTER_ACCOUNTS_URI.'/account/login'))
+            if(!str_starts_with($login_url, Lib::HOST_MAGISTER_ACCOUNTS.'/account/login'))
                 throw new Exception('Failed to get login url.');
 
             // Remember loginUrl
@@ -120,15 +121,15 @@
         }
 
         protected function generateNonce() {
-            return Lib::generateRandomHex(32);
+            return Lib::randomHex(32);
         }
 
         protected function generateState() {
-            return Lib::generateRandomHex(32);
+            return Lib::randomHex(32);
         }
 
         protected function generateCodeVerifier() {
-            return Lib::generateRandomString(128);
+            return Lib::randomString(128);
         }
 
         protected function generateCodeChallenge() {
