@@ -7,12 +7,14 @@
     use Tjall\Magister\Models\Model;
 
     abstract class Controller {
+        public array $options;
         protected array $data = [];
         protected AppSession $session;
         protected $model = Model::class;
 
-        public function __construct(AppSession $session) {
+        public function __construct(AppSession $session, ?array $options = []) {
             $this->session = $session;
+            $this->options = $options;
         }
 
         public function request(

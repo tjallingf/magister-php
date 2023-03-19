@@ -33,7 +33,7 @@
             $this->prepare();
         }
 
-        public function submit(): Bearer {
+        public function submit(): AppSession {
             try {
                 $res = $this->httpClient->get($this->returnUrl, [
                     'allow_redirects' => false
@@ -51,8 +51,9 @@
                     throw new ApiException('Failed to get open id code.');
 
                 $bearer = Bearer::fromOpenidCode($openid_code, $this->codeVerifier);
+                $session = new AppSession($bearer);
                 
-                return $bearer;
+                return $session;
             } catch(RequestException $e) {
                 throw $e;
             }

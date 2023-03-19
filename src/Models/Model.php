@@ -22,8 +22,12 @@
                 call_user_func_array([$this, 'beforeMap'], []);
                 
             $data = [];
-
+            
             foreach (static::MAP as $keypath_out => $options) {
+                if(isset($this->controller->options['filter']) && 
+                   !in_array($keypath_out, $this->controller->options['filter']))
+                    continue;
+                
                 list($keypath_in, $flags) = is_array($options) 
                     ? $options
                     : [ $options, 0];
