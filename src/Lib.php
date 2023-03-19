@@ -1,8 +1,6 @@
 <?php
     namespace Tjall\Magister;
     
-    phpinfo();
-
     use Psr\Http\Message\ResponseInterface;
 
     class Lib {
